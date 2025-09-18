@@ -19,6 +19,7 @@ RISK_TOLERANCE=medium
 # GPT-5 Analysis Settings
 REASONING_EFFORT=medium
 USE_DOMAIN_RESTRICTIONS=false
+INCLUDE_EXTENDED_HOURS=true
 EOF
     echo "✅ Created .env file"
     echo "⚠️  Please edit .env and add your OpenAI API key"

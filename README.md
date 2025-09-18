@@ -10,6 +10,7 @@ An intelligent stock analysis tool that uses GPT-5 with web search capabilities 
   1. **Find top stocks** using AI-powered web search for catalysts and momentum
   2. **Analyze each stock** for binary trading decisions with confidence scores
 - **Real-time Data**: Fetches live market data and technical indicators
+- **Extended Hours Analysis**: Includes pre-market and after-hours trading data and analysis
 - **Visual CLI**: Rich terminal interface with color-coded decisions and progress tracking
 - **Catalyst Detection**: Identifies news events, earnings, upgrades that drive short-term moves
 - **Risk Management**: Provides target prices, stop-losses, and confidence ratings
@@ -110,6 +111,7 @@ export RISK_TOLERANCE="medium"  # low, medium, high
 # GPT-5 analysis settings
 export REASONING_EFFORT="medium"  # low, medium, high
 export USE_DOMAIN_RESTRICTIONS="false"  # true to limit to financial domains
+export INCLUDE_EXTENDED_HOURS="true"  # include pre-market and after-hours data
 ```
 
 ## 📊 Example Output
@@ -133,7 +135,8 @@ export USE_DOMAIN_RESTRICTIONS="false"  # true to limit to financial domains
   📊 Fetching market data for NVDA...
   🌐 Searching for latest news and catalysts...
   🤖 Running GPT-5 analysis...
-  ✅ 🟢 BUY | Confidence: 8/10 | Target: $125.50
+  ✅ 🟢 BUY | Confidence: 8/10
+  💰 Current: $118.50 → Target: $125.50 (📈+5.9%)
   💡 Catalyst: AI chip demand surge, positive earnings outlook
 
 [2/5] 🎯 ANALYZING TSLA
@@ -141,7 +144,8 @@ export USE_DOMAIN_RESTRICTIONS="false"  # true to limit to financial domains
   📊 Fetching market data for TSLA...
   🌐 Searching for latest news and catalysts...
   🤖 Running GPT-5 analysis...
-  ✅ 🔴 SELL | Confidence: 7/10 | Target: $240.00
+  ✅ 🔴 SELL | Confidence: 7/10
+  💰 Current: $250.00 → Target: $240.00 (📉-4.0%)
   💡 Catalyst: Production concerns, analyst downgrades
 
 ============================================================
@@ -151,17 +155,17 @@ export USE_DOMAIN_RESTRICTIONS="false"  # true to limit to financial domains
 🟢 BUY RECOMMENDATIONS (2 stocks):
 ----------------------------------------
 1. NVDA | Confidence: 8/10
-   Current: $118.50 → Target: $125.50 | Stop: $115.00
+   Current: $118.50 → Target: $125.50 (📈+5.9%) | Stop: $115.00
    Catalyst: AI chip demand surge, positive earnings outlook
 
 2. AAPL | Confidence: 7/10
-   Current: $180.25 → Target: $185.00 | Stop: $175.00
+   Current: $180.25 → Target: $185.00 (📈+2.6%) | Stop: $175.00
    Catalyst: iPhone 15 strong sales, services growth
 
 🔴 SELL RECOMMENDATIONS (3 stocks):
 ----------------------------------------
 1. TSLA | Confidence: 7/10
-   Current: $250.00 → Target: $240.00 | Stop: $255.00
+   Current: $250.00 → Target: $240.00 (📉-4.0%) | Stop: $255.00
    Catalyst: Production concerns, analyst downgrades
 
 📈 STATISTICS:
@@ -192,14 +196,16 @@ ai-agent-stocks/
 
 ### Data Sources
 - **Stock Data**: Yahoo Finance API (yfinance) for real-time prices and technical indicators
+- **Extended Hours**: Pre-market and after-hours trading data, volume, and price movements
 - **News & Analysis**: GPT-5 web search with configurable domain restrictions
 - **Market Indicators**: Real-time market data for S&P 500, Dow, Nasdaq, VIX
 
 ### Analysis Components
 1. **Catalyst Detection**: Breaking news, earnings, FDA approvals, analyst changes
-2. **Technical Indicators**: RSI, Moving Averages, Volume spikes, Breakout patterns
-3. **Sentiment Analysis**: Social media trends, options flow, institutional activity
-4. **Risk Management**: Stop-loss levels, target prices, position sizing
+2. **Extended Hours Momentum**: Pre-market and after-hours price action and volume analysis
+3. **Technical Indicators**: RSI, Moving Averages, Volume spikes, Breakout patterns
+4. **Sentiment Analysis**: Social media trends, options flow, institutional activity
+5. **Risk Management**: Stop-loss levels, target prices, position sizing
 
 ### Enhanced GPT-5 Features
 - **Configurable Reasoning**: Low/Medium/High effort levels

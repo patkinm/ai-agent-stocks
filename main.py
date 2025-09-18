@@ -78,14 +78,24 @@ def main():
                 if 'error' not in analysis:
                     decision = analysis['decision'].upper()
                     confidence = analysis['confidence']
-                    target = analysis.get('target_price', 'N/A')
+                    current_price = analysis['current_price']
+                    target_price = analysis.get('target_price')
+                    
+                    # Calculate projected change percentage
+                    if target_price and current_price:
+                        projected_change_pct = ((target_price - current_price) / current_price) * 100
+                        change_indicator = "📈" if projected_change_pct >= 0 else "📉"
+                        target_display = f"${target_price:.2f} ({change_indicator}{projected_change_pct:+.1f}%)"
+                    else:
+                        target_display = "N/A"
                     
                     if decision == 'BUY':
                         indicator = "🟢 BUY"
                     else:
                         indicator = "🔴 SELL"
                     
-                    print(f"  ✅ {indicator} | Confidence: {confidence}/10 | Target: ${target}")
+                    print(f"  ✅ {indicator} | Confidence: {confidence}/10")
+                    print(f"  💰 Current: ${current_price:.2f} → Target: {target_display}")
                     results.append(analysis)
                 else:
                     print(f"  ❌ Error: {analysis['error']}")
@@ -137,13 +147,18 @@ def print_binary_stock_analysis(result):
         color_line = "🔴" * 30
     
     print(color_line)
-    print(f"📊 Current Price: ${result['current_price']:.2f}")
+    current_price = result['current_price']
+    target_price = result.get('target_price')
+    
+    print(f"📊 Current Price: ${current_price:.2f}")
     print(f"🎯 DECISION: {indicator}")
     print(f"⭐ Confidence: {result['confidence']}/10")
     print(color_line)
     
-    if result.get('target_price'):
-        print(f"🎯 Target Price: ${result['target_price']:.2f}")
+    if target_price:
+        projected_change_pct = ((target_price - current_price) / current_price) * 100
+        change_indicator = "📈" if projected_change_pct >= 0 else "📉"
+        print(f"🎯 Target Price: ${target_price:.2f} ({change_indicator}{projected_change_pct:+.1f}%)")
     if result.get('stop_loss'):
         print(f"🛑 Stop Loss: ${result['stop_loss']:.2f}")
     
@@ -247,8 +262,19 @@ def run_interactive_mode():
                     if 'error' not in result:
                         decision = result['decision'].upper()
                         confidence = result['confidence']
+                        current_price = result['current_price']
+                        target_price = result.get('target_price')
+                        
+                        # Calculate projected change percentage
+                        if target_price and current_price:
+                            projected_change_pct = ((target_price - current_price) / current_price) * 100
+                            change_indicator = "📈" if projected_change_pct >= 0 else "📉"
+                            percent_str = f" ({change_indicator}{projected_change_pct:+.1f}%)"
+                        else:
+                            percent_str = ""
+                        
                         indicator = "🟢 BUY" if decision == 'BUY' else "🔴 SELL"
-                        print(f"  ✅ {indicator} | Confidence: {confidence}/10")
+                        print(f"  ✅ {indicator} | Confidence: {confidence}/10{percent_str}")
                         results.append(result)
                     else:
                         print(f"  ❌ Error: {result['error']}")

@@ -60,11 +60,14 @@ SEARCH CRITERIA (use web search extensively):
 
 SEARCH INSTRUCTIONS:
 - Search for "most active stocks today unusual volume"
+- Search for "premarket movers gainers losers today"
+- Search for "after hours trading activity unusual volume"
 - Search for "earnings this week stock movers"
 - Search for "analyst upgrades downgrades today"
 - Search for "biotech FDA approvals pipeline 2024"
 - Search for "short squeeze candidates high short interest"
 - Search for "breaking news stock market today"
+- Search for "extended hours trading activity"
 
 OUTPUT FORMAT:
 Provide EXACTLY {count} stock ticker symbols as a comma-separated list.
@@ -260,14 +263,22 @@ MANDATORY WEB SEARCH (search extensively for):
    - Partnership announcements, acquisitions, spin-offs
    - Management changes, insider trading activity
 
-2. **Technical Setup Analysis**:
+2. **Extended Hours Analysis (CRITICAL)**:
+   - Pre-market movers and unusual activity
+   - After-hours earnings reactions and guidance
+   - Extended hours volume spikes and patterns
+   - Overnight news that could affect opening
+   - International market reactions and spillover effects
+
+3. **Technical Setup Analysis**:
    - Key support/resistance levels and recent breaks
    - Volume patterns and unusual activity
    - Gap fills, breakout patterns, momentum shifts
    - Options flow (unusual call/put activity)
    - Short interest and potential squeeze setups
+   - Extended hours price action vs regular hours
 
-3. **Upcoming Events (1-5 days)**:
+4. **Upcoming Events (1-5 days)**:
    - Earnings date if within timeframe
    - Product launches, conferences, investor days
    - Economic data releases affecting sector
@@ -525,7 +536,16 @@ Focus specifically on short-term catalysts and technical setups that could drive
             if 'error' not in analysis:
                 decision = analysis['decision'].upper()
                 confidence = analysis['confidence']
-                target = analysis.get('target_price', 'N/A')
+                current_price = analysis['current_price']
+                target_price = analysis.get('target_price')
+                
+                # Calculate projected change percentage
+                if target_price and current_price:
+                    projected_change_pct = ((target_price - current_price) / current_price) * 100
+                    change_indicator = "📈" if projected_change_pct >= 0 else "📉"
+                    target_display = f"${target_price:.2f} ({change_indicator}{projected_change_pct:+.1f}%)"
+                else:
+                    target_display = "N/A"
                 
                 # Visual decision indicator
                 if decision == 'BUY':
@@ -533,7 +553,8 @@ Focus specifically on short-term catalysts and technical setups that could drive
                 else:
                     indicator = "🔴 SELL"
                 
-                print(f"  ✅ {indicator} | Confidence: {confidence}/10 | Target: ${target}")
+                print(f"  ✅ {indicator} | Confidence: {confidence}/10")
+                print(f"  💰 Current: ${current_price:.2f} → Target: {target_display}")
                 
                 # Show catalyst if available
                 if analysis.get('catalyst'):
@@ -565,10 +586,21 @@ Focus specifically on short-term catalysts and technical setups that could drive
             # Sort by confidence (highest first)
             buys.sort(key=lambda x: x.get('confidence', 0), reverse=True)
             for i, stock in enumerate(buys, 1):
-                target = f"${stock['target_price']:.2f}" if stock.get('target_price') else 'N/A'
-                stop = f"${stock['stop_loss']:.2f}" if stock.get('stop_loss') else 'N/A'
+                current_price = stock['current_price']
+                target_price = stock.get('target_price')
+                stop_price = stock.get('stop_loss')
+                
+                # Calculate projected percentage changes
+                if target_price:
+                    target_change_pct = ((target_price - current_price) / current_price) * 100
+                    target_display = f"${target_price:.2f} (📈{target_change_pct:+.1f}%)"
+                else:
+                    target_display = 'N/A'
+                
+                stop_display = f"${stop_price:.2f}" if stop_price else 'N/A'
+                
                 print(f"{i}. {stock['symbol']} | Confidence: {stock.get('confidence', 0)}/10")
-                print(f"   Current: ${stock['current_price']:.2f} → Target: {target} | Stop: {stop}")
+                print(f"   Current: ${current_price:.2f} → Target: {target_display} | Stop: {stop_display}")
                 print(f"   Catalyst: {stock.get('catalyst', 'N/A')}")
                 print()
         else:
@@ -580,10 +612,21 @@ Focus specifically on short-term catalysts and technical setups that could drive
             # Sort by confidence (highest first)
             sells.sort(key=lambda x: x.get('confidence', 0), reverse=True)
             for i, stock in enumerate(sells, 1):
-                target = f"${stock['target_price']:.2f}" if stock.get('target_price') else 'N/A'
-                stop = f"${stock['stop_loss']:.2f}" if stock.get('stop_loss') else 'N/A'
+                current_price = stock['current_price']
+                target_price = stock.get('target_price')
+                stop_price = stock.get('stop_loss')
+                
+                # Calculate projected percentage changes
+                if target_price:
+                    target_change_pct = ((target_price - current_price) / current_price) * 100
+                    target_display = f"${target_price:.2f} (📉{target_change_pct:+.1f}%)"
+                else:
+                    target_display = 'N/A'
+                
+                stop_display = f"${stop_price:.2f}" if stop_price else 'N/A'
+                
                 print(f"{i}. {stock['symbol']} | Confidence: {stock.get('confidence', 0)}/10")
-                print(f"   Current: ${stock['current_price']:.2f} → Target: {target} | Stop: {stop}")
+                print(f"   Current: ${current_price:.2f} → Target: {target_display} | Stop: {stop_display}")
                 print(f"   Catalyst: {stock.get('catalyst', 'N/A')}")
                 print()
         else:

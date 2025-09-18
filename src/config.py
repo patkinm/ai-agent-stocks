@@ -22,6 +22,7 @@ class Config:
     # GPT-5 Analysis Settings
     REASONING_EFFORT = os.getenv('REASONING_EFFORT', 'medium')  # low, medium, high
     USE_DOMAIN_RESTRICTIONS = os.getenv('USE_DOMAIN_RESTRICTIONS', 'false').lower() == 'true'
+    INCLUDE_EXTENDED_HOURS = os.getenv('INCLUDE_EXTENDED_HOURS', 'true').lower() == 'true'
     
     # Optional web search domains (only used if USE_DOMAIN_RESTRICTIONS=true)
     PREFERRED_DOMAINS = [

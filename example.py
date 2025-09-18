@@ -112,8 +112,8 @@ def example_find_stocks_only():
 
 
 def example_market_data_only():
-    """Example of just fetching market data without GPT analysis"""
-    print("\n\n📊 Example: Market Data Fetching")
+    """Example of just fetching market data including extended hours"""
+    print("\n\n📊 Example: Market Data Fetching (with Extended Hours)")
     print("-" * 40)
     
     from src.market_data import MarketDataFetcher
@@ -122,16 +122,27 @@ def example_market_data_only():
     
     # Get data for a stock
     symbol = "TSLA"
-    print(f"Fetching data for {symbol}...")
+    print(f"Fetching comprehensive data for {symbol}...")
     
     data = fetcher.get_stock_data(symbol)
     if data:
-        print(f"\n{symbol} Data:")
+        print(f"\n{symbol} Regular Market Data:")
         print(f"Price: ${data['current_price']:.2f}")
         print(f"Change: {data['price_change_percent']:.2f}%")
         print(f"Volume: {data['volume']:,}")
         print(f"RSI: {data['rsi']:.1f}")
         print(f"Market Cap: ${data.get('market_cap', 0):,}")
+        
+        # Show extended hours data
+        print(f"\n📈 Extended Hours Activity:")
+        if data.get('premarket_price'):
+            print(f"Pre-Market: ${data['premarket_price']:.2f} ({data['premarket_change_percent']:+.2f}%)")
+            print(f"Pre-Market Volume: {data.get('premarket_volume', 0):,}")
+        if data.get('afterhours_price'):
+            print(f"After-Hours: ${data['afterhours_price']:.2f} ({data['afterhours_change_percent']:+.2f}%)")
+            print(f"After-Hours Volume: {data.get('afterhours_volume', 0):,}")
+        if not data.get('extended_hours_active'):
+            print("No current extended hours activity")
     else:
         print(f"Could not fetch data for {symbol}")
     
@@ -186,6 +197,7 @@ if __name__ == "__main__":
         print("\n⚙️  Configuration options:")
         print("- REASONING_EFFORT=medium (default)")
         print("- USE_DOMAIN_RESTRICTIONS=false (searches all domains)")
+        print("- INCLUDE_EXTENDED_HOURS=true (pre-market and after-hours data)")
     
     print("\n✅ Examples completed!")
     print("🚀 To run the full analyzer: python main.py")
