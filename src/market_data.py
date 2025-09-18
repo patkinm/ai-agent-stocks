@@ -146,6 +146,34 @@ class MarketDataFetcher:
         if not stock_data:
             return "No data available"
         
+        # Helper function to safely format numbers
+        def safe_format(value, format_str, default='N/A'):
+            if value is None or (isinstance(value, str) and value == 'N/A'):
+                return default
+            try:
+                return format_str.format(value)
+            except (ValueError, TypeError):
+                return default
+        
+        # Safe formatting for financial data
+        market_cap = stock_data.get('market_cap')
+        market_cap_str = f"${market_cap:,}" if market_cap else 'N/A'
+        
+        analyst_target = stock_data.get('analyst_target_price')
+        analyst_target_str = f"${analyst_target:.2f}" if analyst_target else 'N/A'
+        
+        dividend_yield = stock_data.get('dividend_yield')
+        dividend_yield_str = f"{dividend_yield:.2f}%" if dividend_yield else 'N/A'
+        
+        pe_ratio = stock_data.get('pe_ratio')
+        pe_ratio_str = f"{pe_ratio:.2f}" if pe_ratio else 'N/A'
+        
+        beta = stock_data.get('beta')
+        beta_str = f"{beta:.2f}" if beta else 'N/A'
+        
+        fifty_two_low = stock_data.get('fifty_two_week_low', 0) or 0
+        fifty_two_high = stock_data.get('fifty_two_week_high', 0) or 0
+        
         summary = f"""
 Stock: {stock_data['short_name']} ({stock_data['symbol']})
 Sector: {stock_data.get('sector', 'N/A')} | Industry: {stock_data.get('industry', 'N/A')}
@@ -153,7 +181,7 @@ Sector: {stock_data.get('sector', 'N/A')} | Industry: {stock_data.get('industry'
 Price Information:
 - Current Price: ${stock_data['current_price']:.2f}
 - Change: ${stock_data['price_change']:.2f} ({stock_data['price_change_percent']:.2f}%)
-- 52-Week Range: ${stock_data.get('fifty_two_week_low', 0):.2f} - ${stock_data.get('fifty_two_week_high', 0):.2f}
+- 52-Week Range: ${fifty_two_low:.2f} - ${fifty_two_high:.2f}
 
 Technical Indicators:
 - 5-day MA: ${stock_data['ma_5']:.2f}
@@ -162,10 +190,10 @@ Technical Indicators:
 - Volume: {stock_data['volume']:,} (Ratio: {stock_data['volume_ratio']:.2f}x avg)
 
 Fundamentals:
-- Market Cap: ${stock_data.get('market_cap', 0):,} if stock_data.get('market_cap') else 'N/A'
-- P/E Ratio: {stock_data.get('pe_ratio', 'N/A')}
-- Beta: {stock_data.get('beta', 'N/A')}
-- Analyst Target: ${stock_data.get('analyst_target_price', 0):.2f} if stock_data.get('analyst_target_price') else 'N/A'
-- Dividend Yield: {stock_data.get('dividend_yield', 0):.2f}% if stock_data.get('dividend_yield') else 'N/A'
+- Market Cap: {market_cap_str}
+- P/E Ratio: {pe_ratio_str}
+- Beta: {beta_str}
+- Analyst Target: {analyst_target_str}
+- Dividend Yield: {dividend_yield_str}
 """
         return summary.strip()

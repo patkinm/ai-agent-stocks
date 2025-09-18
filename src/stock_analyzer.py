@@ -610,9 +610,12 @@ Focus specifically on short-term catalysts and technical setups that could drive
         summary += "=" * 60 + "\n\n"
         
         for i, rec in enumerate(recommendations, 1):
+            target_str = f"${rec['target_price']:.2f}" if rec.get('target_price') else 'N/A'
+            stop_str = f"${rec['stop_loss']:.2f}" if rec.get('stop_loss') else 'N/A'
+            
             summary += f"{i}. {rec['symbol']} - {rec['action'].upper()}\n"
             summary += f"   Score: {rec['score']}/10 | Risk: {rec['risk_level']}\n"
-            summary += f"   Target: ${rec['target_price']:.2f} | Stop Loss: ${rec['stop_loss']:.2f}\n"
+            summary += f"   Target: {target_str} | Stop Loss: {stop_str}\n"
             summary += f"   Horizon: {rec['time_horizon']}\n"
             summary += f"   Reasoning: {rec['reasoning'][:200]}...\n\n"
         
