@@ -36,15 +36,17 @@ def example_binary_stock_analysis():
         
         print(f"\n📊 Binary Analysis Results for {result['symbol']}:")
         print(f"Current Price: ${result['current_price']:.2f}")
-        print(f"Decision: {indicator}")
+        
+        # Show analysis first
+        if result.get('analysis'):
+            print(f"\nAnalysis:")
+            print(result['analysis'])
+        
+        print(f"\nDecision: {indicator}")
         print(f"Confidence: {result['confidence']}/10")
         print(f"Target Price: ${result.get('target_price', 'N/A')}")
         print(f"Stop Loss: ${result.get('stop_loss', 'N/A')}")
         print(f"Catalyst: {result.get('catalyst', 'N/A')}")
-        
-        print(f"\nReasoning (excerpt):")
-        reasoning_excerpt = result['reasoning'][:300] + "..." if len(result['reasoning']) > 300 else result['reasoning']
-        print(reasoning_excerpt)
         
     except Exception as e:
         print(f"Error: {e}")

@@ -76,6 +76,11 @@ def main():
                 analysis = analyzer.analyze_stock_for_binary_decision(symbol, show_progress=True)
                 
                 if 'error' not in analysis:
+                    # Show analysis reasoning first
+                    if analysis.get('analysis'):
+                        print(f"  📝 Analysis: {analysis['analysis']}")
+                        print()
+                    
                     decision = analysis['decision'].upper()
                     confidence = analysis['confidence']
                     current_price = analysis['current_price']
@@ -151,7 +156,14 @@ def print_binary_stock_analysis(result):
     target_price = result.get('target_price')
     
     print(f"📊 Current Price: ${current_price:.2f}")
-    print(f"🎯 DECISION: {indicator}")
+    
+    # Show analysis first
+    if result.get('analysis'):
+        print(f"\n📝 ANALYSIS:")
+        print("-" * 30)
+        print(result['analysis'])
+    
+    print(f"\n🎯 DECISION: {indicator}")
     print(f"⭐ Confidence: {result['confidence']}/10")
     print(color_line)
     
@@ -166,13 +178,6 @@ def print_binary_stock_analysis(result):
     
     if result.get('catalyst'):
         print(f"💡 Main Catalyst: {result['catalyst']}")
-    
-    print(f"\n📝 REASONING:")
-    print("-" * 30)
-    reasoning_lines = result['reasoning'].split('\n')
-    for line in reasoning_lines[:10]:  # Limit to first 10 lines for readability
-        if line.strip():
-            print(line.strip())
     
     print(f"\n🕐 Analysis Time: {result['analysis_timestamp']}")
 
@@ -260,6 +265,11 @@ def run_interactive_mode():
                     result = analyzer.analyze_stock_for_binary_decision(symbol, show_progress=False)
                     
                     if 'error' not in result:
+                        # Show analysis reasoning first
+                        if result.get('analysis'):
+                            print(f"  📝 Analysis: {result['analysis']}")
+                            print()
+                        
                         decision = result['decision'].upper()
                         confidence = result['confidence']
                         current_price = result['current_price']

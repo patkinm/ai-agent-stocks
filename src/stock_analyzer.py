@@ -296,15 +296,23 @@ RISK MANAGEMENT:
 - Consider position sizing based on volatility
 
 OUTPUT FORMAT (EXACT):
+First provide your detailed analysis, then the structured decision:
+
+ANALYSIS:
+[Provide comprehensive reasoning explaining:
+- Key catalysts and news findings from your web search
+- Technical setup and price action analysis
+- Extended hours activity and momentum signals
+- Risk factors and market conditions
+- Why this creates a trading opportunity in 1-5 days
+Make this 3-4 sentences with specific details from your research.]
+
 DECISION: [BUY or SELL]
 CONFIDENCE: [1-10 scale]
 TARGET: $[specific price]
 STOP LOSS: $[specific price]
 CATALYST: [Primary driver - max 15 words]
 TIMEFRAME: [1-5 days]
-
-REASONING:
-[2-3 sentences explaining the key factors driving your decision and why this timeframe makes sense]
 
 CRITICAL: You MUST choose BUY or SELL. Base decision on highest probability outcome for next 1-5 days.
 """
@@ -437,7 +445,7 @@ Focus specifically on short-term catalysts and technical setups that could drive
         return result
     
     def _parse_binary_response(self, response_text: str, stock_data: Dict) -> Dict:
-        """Parse GPT binary response and extract structured data"""
+        """Parse GPT binary response and extract structured data with analysis first"""
         result = {
             'symbol': stock_data['symbol'],
             'current_price': stock_data['current_price'],
@@ -448,11 +456,26 @@ Focus specifically on short-term catalysts and technical setups that could drive
             'stop_loss': None,
             'catalyst': '',
             'timeframe': '1-5 days',
-            'reasoning': response_text
+            'analysis': '',
+            'raw_response': response_text
         }
         
-        # Extract structured data from response
+        # Extract analysis section first
         try:
+            # Find the ANALYSIS section
+            if 'ANALYSIS:' in response_text.upper():
+                analysis_start = response_text.upper().find('ANALYSIS:') + len('ANALYSIS:')
+                decision_start = response_text.upper().find('DECISION:')
+                
+                if decision_start > analysis_start:
+                    analysis_text = response_text[analysis_start:decision_start].strip()
+                    result['analysis'] = analysis_text
+                else:
+                    # If no DECISION found after ANALYSIS, take everything after ANALYSIS
+                    analysis_text = response_text[analysis_start:].strip()
+                    result['analysis'] = analysis_text
+            
+            # Extract structured decision data
             lines = response_text.upper().split('\n')
             
             for line in lines:
@@ -534,6 +557,11 @@ Focus specifically on short-term catalysts and technical setups that could drive
             analysis = self.analyze_stock_for_binary_decision(symbol, show_progress=True)
             
             if 'error' not in analysis:
+                # Show analysis reasoning first
+                if analysis.get('analysis'):
+                    print(f"  📝 Analysis: {analysis['analysis']}")
+                    print()
+                
                 decision = analysis['decision'].upper()
                 confidence = analysis['confidence']
                 current_price = analysis['current_price']
