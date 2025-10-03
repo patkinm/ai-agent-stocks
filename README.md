@@ -1,260 +1,222 @@
-# AI Stock Analyzer 🚀
+# AI Stock Analyzer - Complete Project
 
-An intelligent stock analysis tool that uses GPT-5 with web search capabilities to provide **BINARY trading decisions** (BUY/SELL only) for short-term trading opportunities (1-5 day cycles).
+This repository contains both the original Python implementation and the new Next.js web application for AI-powered stock analysis.
 
-## 🎯 Key Features
-
-- **Binary Decision Mode**: Every analysis provides clear BUY or SELL decisions (no holds)
-- **GPT-5 Web Search**: Leverages OpenAI's GPT-5 with financial domain web search
-- **Two-Step Workflow**: 
-  1. **Find top stocks** using AI-powered web search for catalysts and momentum
-  2. **Analyze each stock** for binary trading decisions with confidence scores
-- **Real-time Data**: Fetches live market data and technical indicators
-- **Extended Hours Analysis**: Includes pre-market and after-hours trading data and analysis
-- **Visual CLI**: Rich terminal interface with color-coded decisions and progress tracking
-- **Catalyst Detection**: Identifies news events, earnings, upgrades that drive short-term moves
-- **Risk Management**: Provides target prices, stop-losses, and confidence ratings
-
-## Installation
-
-1. **Clone or download the project**
-   ```bash
-   cd /Users/user/prjs/ai-agent-stocks
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up your OpenAI API key**
-   
-   Create a `.env` file in the project root:
-   ```bash
-   echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-   ```
-   
-   Or set it as an environment variable:
-   ```bash
-   export OPENAI_API_KEY="your_openai_api_key_here"
-   ```
-
-## 🚀 Usage
-
-### Complete Workflow (Recommended)
-
-**Find top stocks + Binary analysis:**
-```bash
-python main.py
-# Finds 8 top trading candidates, analyzes each for BUY/SELL decisions
-```
-
-**Custom number of stocks:**
-```bash
-python main.py --count 5
-# Find and analyze top 5 stocks
-```
-
-### Analyze Specific Stocks
-
-**Single stock binary decision:**
-```bash
-python main.py --single AAPL
-# Detailed BUY/SELL analysis for Apple
-```
-
-**Multiple specific stocks:**
-```bash
-python main.py --stocks "AAPL,MSFT,GOOGL"
-# Binary analysis for specific stocks
-```
-
-### Interactive Mode
-
-**Run without arguments:**
-```bash
-python main.py
-```
-
-**Interactive commands:**
-- `AAPL` - Detailed binary analysis for single stock
-- `AAPL,MSFT` - Quick analysis of multiple stocks  
-- `scan` - Find and analyze top stocks automatically
-- `help` - Show all commands
-- `quit` - Exit
-
-### Output Options
-
-**Save results to JSON:**
-```bash
-python main.py --count 10 --output results.json
-```
-
-### Command Line Options
-
-- `--count`: Number of top stocks to find and analyze (default: 8)
-- `--single`: Analyze single stock with detailed binary decision
-- `--stocks`: Analyze specific comma-separated stock symbols
-- `--output`: Save detailed results to JSON file
-
-## Configuration
-
-You can customize the analysis by setting environment variables:
-
-```bash
-# Stock analysis settings
-export DEFAULT_STOCKS="AAPL,GOOGL,MSFT,TSLA,NVDA"
-export ANALYSIS_TIMEFRAME="5"  # days
-export MAX_STOCKS_TO_ANALYZE="10"
-export RISK_TOLERANCE="medium"  # low, medium, high
-
-# GPT-5 analysis settings
-export REASONING_EFFORT="medium"  # low, medium, high
-export USE_DOMAIN_RESTRICTIONS="false"  # true to limit to financial domains
-export INCLUDE_EXTENDED_HOURS="true"  # include pre-market and after-hours data
-```
-
-## 📊 Example Output
-
-### Complete Workflow
-```
-🚀 AI STOCK ANALYZER - BINARY DECISION MODE
-============================================================
-
-📈 STEP 1: Finding Top Short-Term Trading Candidates
---------------------------------------------------
-🔍 Searching for top 5 short-term trading opportunities...
-🎯 Found potential stocks: NVDA,TSLA,AAPL,AMD,GOOGL
-✅ Selected 5 stocks for analysis: NVDA, TSLA, AAPL, AMD, GOOGL
-
-🔬 STEP 2: Binary Analysis of 5 Stocks
---------------------------------------------------
-
-[1/5] 🎯 ANALYZING NVDA
-──────────────────────────────
-  📊 Fetching market data for NVDA...
-  🌐 Searching for latest news and catalysts...
-  🤖 Running GPT-5 analysis...
-  📝 Analysis: NVIDIA shows strong momentum following Q3 earnings beat with data center revenue up 206% YoY. Pre-market activity indicates continued institutional buying with volume 2.3x average. Technical setup shows breakout above $120 resistance with RSI at 65, suggesting further upside potential as AI infrastructure demand accelerates into 2024.
-
-  ✅ 🟢 BUY | Confidence: 8/10
-  💰 Current: $118.50 → Target: $125.50 (📈+5.9%)
-  💡 Catalyst: AI chip demand surge, positive earnings outlook
-
-[2/5] 🎯 ANALYZING TSLA
-──────────────────────────────
-  📊 Fetching market data for TSLA...
-  🌐 Searching for latest news and catalysts...
-  🤖 Running GPT-5 analysis...
-  📝 Analysis: Tesla faces headwinds from production concerns at Gigafactory Shanghai and recent analyst downgrades citing margin pressure. After-hours trading shows weakness following delivery miss guidance, with volume spike indicating institutional selling. Technical breakdown below $245 support level suggests further downside risk as EV competition intensifies.
-
-  ✅ 🔴 SELL | Confidence: 7/10
-  💰 Current: $250.00 → Target: $240.00 (📉-4.0%)
-  💡 Catalyst: Production concerns, analyst downgrades
-
-============================================================
-📊 BINARY ANALYSIS SUMMARY
-============================================================
-
-🟢 BUY RECOMMENDATIONS (2 stocks):
-----------------------------------------
-1. NVDA | Confidence: 8/10
-   Current: $118.50 → Target: $125.50 (📈+5.9%) | Stop: $115.00
-   Catalyst: AI chip demand surge, positive earnings outlook
-
-2. AAPL | Confidence: 7/10
-   Current: $180.25 → Target: $185.00 (📈+2.6%) | Stop: $175.00
-   Catalyst: iPhone 15 strong sales, services growth
-
-🔴 SELL RECOMMENDATIONS (3 stocks):
-----------------------------------------
-1. TSLA | Confidence: 7/10
-   Current: $250.00 → Target: $240.00 (📉-4.0%) | Stop: $255.00
-   Catalyst: Production concerns, analyst downgrades
-
-📈 STATISTICS:
-   Total Analyzed: 5
-   Buy Signals: 2 (40.0%)
-   Sell Signals: 3 (60.0%)
-   Avg Confidence: 7.4/10
-
-⚠️  DISCLAIMER: This is for educational purposes only.
-   Always do your own research before trading!
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 ai-agent-stocks/
-├── src/
-│   ├── __init__.py
-│   ├── config.py          # Configuration management
-│   ├── market_data.py     # Stock data fetching and processing
-│   └── stock_analyzer.py  # Main GPT-5 analysis engine
-├── main.py               # CLI application entry point
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+├── python/           # Original Python implementation
+│   ├── src/         # Python source code
+│   ├── main.py      # CLI application
+│   └── README.md    # Python documentation
+│
+└── web/             # Next.js web application
+    ├── app/         # Next.js pages and API routes
+    ├── components/  # React components
+    ├── lib/         # Services and utilities
+    └── README.md    # Web app documentation
 ```
 
-## Technical Details
+## 🚀 Quick Start
 
-### Data Sources
-- **Stock Data**: Yahoo Finance API (yfinance) for real-time prices and technical indicators
-- **Extended Hours**: Pre-market and after-hours trading data, volume, and price movements
-- **News & Analysis**: GPT-5 web search with configurable domain restrictions
-- **Market Indicators**: Real-time market data for S&P 500, Dow, Nasdaq, VIX
+### Python Application
 
-### Analysis Components
-1. **Catalyst Detection**: Breaking news, earnings, FDA approvals, analyst changes
-2. **Extended Hours Momentum**: Pre-market and after-hours price action and volume analysis
-3. **Technical Indicators**: RSI, Moving Averages, Volume spikes, Breakout patterns
-4. **Sentiment Analysis**: Social media trends, options flow, institutional activity
-5. **Risk Management**: Stop-loss levels, target prices, position sizing
+```bash
+cd python
+pip install -r requirements.txt
+export OPENAI_API_KEY="your-key-here"
+python main.py
+```
 
-### Enhanced GPT-5 Features
-- **Configurable Reasoning**: Low/Medium/High effort levels
-- **Unrestricted Web Search**: Searches across all domains for comprehensive data
-- **Specialized Prompts**: Optimized for momentum trading and catalyst detection
-- **Binary Decision Framework**: Eliminates ambiguous "hold" recommendations
+See [python/README.md](python/README.md) for detailed documentation.
 
-### Optional Financial Domains (if restrictions enabled)
-- finance.yahoo.com, marketwatch.com, bloomberg.com
-- reuters.com, cnbc.com, sec.gov, benzinga.com
-- seeking.alpha.com, finviz.com, zacks.com, morningstar.com
+### Web Application
 
-## Requirements
+```bash
+cd web
+pnpm install
+cp .env.example .env.local
+# Edit .env.local with your credentials
+pnpm dev
+```
 
+See [web/README.md](web/README.md) for detailed documentation.
+
+## 🎯 Features
+
+### Python CLI
+- Command-line interface for stock analysis
+- Interactive mode for quick queries
+- JSON output for automation
+- Binary BUY/SELL decisions with confidence scores
+
+### Web Application
+- **Modern UI**: Professional, minimalistic interface with grayish theme
+- **Market Scanning**: AI-powered discovery of trading opportunities
+- **Single Stock Analysis**: Detailed analysis of any stock symbol
+- **Scan History**: Browse and review previous analysis sessions
+- **Prediction Tracking**: Compare predictions with actual outcomes
+- **Accuracy Metrics**: Track AI performance over time
+- **Extended Hours**: Pre-market and after-hours data analysis
+
+## 🔧 Technology Stack
+
+### Python App
 - Python 3.8+
-- OpenAI API key with GPT-5 access
-- Internet connection for real-time data
+- OpenAI GPT-5
+- yfinance (market data)
+- python-dotenv
 
-## Limitations & Disclaimers
+### Web App
+- Next.js 15 (App Router)
+- TypeScript
+- MongoDB (data persistence)
+- OpenAI GPT-5
+- Tailwind CSS
+- Yahoo Finance API
 
-⚠️ **IMPORTANT DISCLAIMERS:**
+## 📊 Key Capabilities
 
-1. **Educational Purpose Only**: This tool is for educational and research purposes only
-2. **Not Financial Advice**: Do not use this as sole basis for investment decisions
-3. **Risk Warning**: Short-term trading involves significant risk of loss
-4. **Due Diligence**: Always conduct your own research and analysis
-5. **Market Volatility**: Past performance does not guarantee future results
+1. **Stock Discovery**: AI searches the web for trending stocks with catalysts
+2. **Binary Analysis**: Clear BUY or SELL decisions (no ambiguous holds)
+3. **Risk Management**: Target prices, stop losses, confidence scores
+4. **Catalyst Detection**: Identifies news, earnings, FDA approvals, upgrades
+5. **Technical Analysis**: RSI, moving averages, volume patterns
+6. **Extended Hours**: Pre-market and after-hours trading analysis
+7. **Prediction Tracking**: Validates AI accuracy over time
 
-## Contributing
+## ⚙️ Configuration
 
-This is a demonstration project. Feel free to fork and enhance with additional features:
+Both applications share similar configuration options:
 
-- Additional data sources (Alpha Vantage, Polygon, etc.)
-- More sophisticated technical indicators
-- Backtesting capabilities
-- Portfolio optimization
-- Risk management tools
+```env
+OPENAI_API_KEY=your_key_here
+DEFAULT_STOCKS=AAPL,GOOGL,MSFT,TSLA,NVDA
+REASONING_EFFORT=medium
+USE_DOMAIN_RESTRICTIONS=false
+INCLUDE_EXTENDED_HOURS=true
+```
 
-## License
+### Web-Only Configuration
+
+```env
+MONGODB_URI=mongodb://localhost:27017/ai-agent-stocks
+```
+
+## 🚨 Important Disclaimers
+
+⚠️ **Educational Purpose Only**
+
+This tool is designed for educational and research purposes only. It is **NOT** financial advice.
+
+- Always conduct your own research
+- Understand the risks involved in trading
+- Never invest more than you can afford to lose
+- Past performance does not guarantee future results
+- Consult with a licensed financial advisor before making investment decisions
+
+## 📖 Usage Examples
+
+### Python CLI
+
+```bash
+# Analyze single stock
+python main.py --single AAPL
+
+# Scan and analyze top 5 stocks
+python main.py --count 5
+
+# Analyze specific stocks
+python main.py --stocks "AAPL,MSFT,GOOGL"
+
+# Save results to JSON
+python main.py --count 10 --output results.json
+```
+
+### Web Application
+
+1. **Single Analysis**: Enter a symbol and click "Analyze"
+2. **Market Scan**: Set count and click "Start Scan"
+3. **View History**: Navigate to "Scans" to browse past analyses
+4. **Track Predictions**: Check "Predictions" for accuracy metrics
+5. **Search Symbols**: Use "Symbols" for quick access to popular stocks
+
+## 🔍 How It Works
+
+1. **Data Collection**
+   - Real-time stock prices from Yahoo Finance
+   - Technical indicators (RSI, MA, volume)
+   - Extended hours trading data
+   - Market overview (S&P 500, Nasdaq, VIX)
+
+2. **AI Analysis**
+   - GPT-5 with web search capabilities
+   - Searches for catalysts (news, earnings, upgrades)
+   - Analyzes technical setups and momentum
+   - Considers extended hours activity
+   - Evaluates risk/reward ratios
+
+3. **Binary Decision**
+   - Clear BUY or SELL (no holds)
+   - Confidence score (1-10)
+   - Target price and stop loss
+   - Primary catalyst identification
+   - Timeframe (1-5 days)
+
+4. **Result Storage** (Web Only)
+   - MongoDB stores all analyses
+   - Tracks predictions over time
+   - Calculates accuracy metrics
+   - Enables historical comparisons
+
+## 🛠️ Development
+
+### Python
+
+```bash
+cd python
+pip install -r requirements.txt
+python example.py  # Run examples
+python main.py     # Run CLI
+```
+
+### Web
+
+```bash
+cd web
+pnpm install
+pnpm dev          # Development server
+pnpm build        # Production build
+pnpm start        # Production server
+```
+
+## 📝 License
 
 This project is for educational purposes. Please ensure compliance with:
 - OpenAI's usage policies
 - Financial data provider terms of service
 - Local financial regulations
 
+## 🤝 Contributing
+
+This is a demonstration project. Feel free to fork and enhance with:
+- Additional data sources
+- More technical indicators
+- Backtesting capabilities
+- Portfolio optimization
+- Advanced risk management
+
+## 📞 Support
+
+For issues or questions:
+1. Check the respective README files (python/ or web/)
+2. Review the API documentation
+3. Ensure all dependencies are installed
+4. Verify API keys and environment variables
+
 ---
 
-**Remember**: Always trade responsibly and never risk more than you can afford to lose! 📊💰
+**Remember**: This is an educational tool. Always do your own research and trade responsibly! 📊💼
+
+
