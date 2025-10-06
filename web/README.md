@@ -76,11 +76,9 @@ web/
 │   ├── api/                 # API routes
 │   │   ├── analyze/         # Single stock analysis
 │   │   ├── scan/            # Market scanning
-│   │   ├── scans/           # Scan history
 │   │   ├── comparisons/     # Prediction tracking
 │   │   └── analyses/        # Stock history
-│   ├── scans/              # Scan history pages
-│   ├── comparisons/        # Prediction comparison page
+│   ├── comparisons/        # Prediction tracking page
 │   ├── symbols/            # Symbol search page
 │   ├── layout.tsx          # Root layout
 │   ├── page.tsx            # Home page (analysis)
@@ -118,17 +116,11 @@ Scan market for top stocks
 }
 ```
 
-### GET /api/scans
-Get all scan sessions (paginated)
-
-### GET /api/scans/[id]
-Get detailed scan results
-
 ### GET /api/comparisons
-Get prediction comparisons with stats
+Get analyses with prediction tracking and accuracy stats
 
 ### POST /api/comparisons
-Update all pending comparisons with actual data
+Update all pending analyses with current price data for prediction tracking
 
 ### GET /api/analyses/[symbol]
 Get analysis history for a symbol
@@ -137,28 +129,18 @@ Get analysis history for a symbol
 
 ### Collections
 
-**analyses**: Individual stock analyses
-- Symbol, decision, confidence, prices, targets
-- Technical indicators (RSI, MA, volume)
-- Extended hours data
-- Raw AI response
-
-**scans**: Analysis session metadata
-- Timestamp, type, stocks analyzed
-- Summary statistics (buy/sell signals, confidence)
-
-**comparisons**: Prediction vs actual results
-- Predicted vs actual prices
-- Accuracy scores, target achievement
-- Days elapsed since prediction
+**analyses**: All analysis data (simplified from 3 collections to 1!)
+- Core: Symbol, decision, confidence, prices, targets
+- Technical indicators: RSI, MA, volume, etc.
+- Extended hours data: Pre-market, after-hours prices
+- AI reasoning: Raw response and analysis text
+- Prediction tracking: Actual prices, accuracy scores, target achievement
 
 ## 🎨 UI Components
 
 ### Pages
 - **/** - Main analysis interface (single stock or market scan)
-- **/scans** - Browse analysis history
-- **/scans/[id]** - Detailed scan results
-- **/comparisons** - Prediction tracking and accuracy
+- **/comparisons** - Prediction tracking and accuracy statistics
 - **/symbols** - Symbol search and popular stocks
 
 ### Components

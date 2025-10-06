@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, History, TrendingUp, Activity } from 'lucide-react';
+import { BarChart3, TrendingUp, Activity, History } from 'lucide-react';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -10,7 +10,7 @@ export default function Navigation() {
   const links = [
     { href: '/', label: 'Dashboard', icon: BarChart3 },
     { href: '/analyze', label: 'New Analysis', icon: Activity },
-    { href: '/scans', label: 'Scans', icon: History },
+    { href: '/scans', label: 'Scan History', icon: History },
     { href: '/comparisons', label: 'Predictions', icon: TrendingUp },
   ];
 

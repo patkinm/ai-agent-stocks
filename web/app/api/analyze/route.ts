@@ -6,11 +6,7 @@ import { MarketDataFetcher } from '@/lib/services/market-data';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, scanId: providedScanId } = body;
-
-    console.log('=== ANALYZE API CALLED ===');
-    console.log('Symbol:', symbol);
-    console.log('Provided scanId:', providedScanId);
+    const { symbol } = body;
 
     if (!symbol) {
       return NextResponse.json({ error: 'Symbol is required' }, { status: 400 });
@@ -24,21 +20,6 @@ export async function POST(request: NextRequest) {
     const analyzer = new StockAnalyzer(apiKey);
     const marketData = new MarketDataFetcher();
     const db = new DatabaseService();
-
-    // Create a scan session if not provided
-    let scanId = providedScanId;
-    if (!scanId) {
-      console.log('No scanId provided, creating new scan session...');
-      try {
-        scanId = await db.saveScanSession('single', [symbol.toUpperCase()]);
-        console.log('✅ Created scan session:', scanId);
-      } catch (scanError) {
-        console.error('❌ Failed to create scan session:', scanError);
-        throw scanError;
-      }
-    } else {
-      console.log('Using provided scanId:', scanId);
-    }
 
     // Get stock data first to merge with analysis
     const stockData = await marketData.getStockData(symbol.toUpperCase(), '3mo');
@@ -57,23 +38,14 @@ export async function POST(request: NextRequest) {
     const fullAnalysis = { ...analysis, ...stockData };
 
     // Save to database
-    console.log('Saving analysis with scanId:', scanId);
-    const analysisId = await db.saveAnalysis(fullAnalysis, scanId);
-    console.log('✅ Saved analysis with ID:', analysisId);
-    
-    // Update scan summary
-    console.log('Updating scan summary for scanId:', scanId);
-    await db.updateScanSummary(scanId, [fullAnalysis]);
-    console.log('✅ Updated scan summary');
+    const analysisId = await db.saveAnalysis(fullAnalysis);
 
     return NextResponse.json({
       success: true,
-      scanId: scanId.toString(),
       analysis: { ...fullAnalysis, _id: analysisId },
     });
   } catch (error: any) {
-    console.error('❌ ERROR in analyze API:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Error in analyze API:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to analyze stock' },
       { status: 500 }

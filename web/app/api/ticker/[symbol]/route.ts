@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { symbol } = await params;
     const db = new DatabaseService();
-    const analyses = await db.getAnalysesWithPredictions(symbol.toUpperCase());
+    const analyses = await db.getAnalysesBySymbolChronological(symbol.toUpperCase());
 
     return NextResponse.json({ 
       success: true, 
@@ -23,5 +23,3 @@ export async function GET(
     );
   }
 }
-
-

@@ -17,60 +17,62 @@ export async function POST(request: NextRequest) {
     const marketData = new MarketDataFetcher();
     const db = new DatabaseService();
 
-    let stocksToAnalyze: string[];
-    let scanType: 'complete' | 'specific' | 'single';
-
+    // STEP 1: Detect tickers
+    let detectedTickers: string[];
     if (symbols && symbols.length > 0) {
-      // Analyze specific symbols
-      stocksToAnalyze = symbols.map((s: string) => s.toUpperCase());
-      scanType = symbols.length === 1 ? 'single' : 'specific';
+      detectedTickers = symbols.map((s: string) => s.toUpperCase());
     } else {
-      // Find top stocks
-      stocksToAnalyze = await analyzer.findTopShortTermStocks(count);
-      scanType = 'complete';
+      detectedTickers = await analyzer.findTopShortTermStocks(count);
     }
 
-    // Create scan session
-    const scanId = await db.saveScanSession(scanType, stocksToAnalyze);
-    console.log('Created scan session:', scanId, 'Type:', scanType, 'Symbols:', stocksToAnalyze);
+    // Create scan session with detected tickers
+    const scanId = await db.createScanSession(detectedTickers);
 
-    // Analyze each stock
+    // STEP 2: Analyze each ticker
     const results = [];
-    for (const symbol of stocksToAnalyze) {
+    const failedTickers = [];
+
+    for (const symbol of detectedTickers) {
       try {
         // Get stock data
         const stockData = await marketData.getStockData(symbol, '3mo');
         if (!stockData) {
+          failedTickers.push(symbol);
           continue;
         }
 
         // Analyze
         const analysis = await analyzer.analyzeStockForBinaryDecision(symbol);
         if (analysis.error) {
+          failedTickers.push(symbol);
           continue;
         }
 
         // Merge data
         const fullAnalysis = { ...analysis, ...stockData };
 
-        // Save to database
+        // Save to database with scan_id
         const analysisId = await db.saveAnalysis(fullAnalysis, scanId);
         results.push({ ...fullAnalysis, _id: analysisId });
       } catch (error) {
         console.error(`Error analyzing ${symbol}:`, error);
+        failedTickers.push(symbol);
       }
     }
 
-    // Update scan summary
-    await db.updateScanSummary(scanId, results);
-    console.log('Updated scan summary for:', scanId, 'Results:', results.length);
+    // STEP 3: Update scan session with results
+    await db.updateScanSession(scanId, results, failedTickers);
 
     return NextResponse.json({
       success: true,
-      scanId,
+      scanId: scanId.toString(),
+      detectedTickers,
       results,
+      failedTickers,
       summary: {
-        total_analyzed: results.length,
+        total_detected: detectedTickers.length,
+        successful_analyses: results.length,
+        failed_analyses: failedTickers.length,
         buy_signals: results.filter(r => r.decision === 'buy').length,
         sell_signals: results.filter(r => r.decision === 'sell').length,
         avg_confidence:
@@ -84,5 +86,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message || 'Failed to perform scan' }, { status: 500 });
   }
 }
-
-

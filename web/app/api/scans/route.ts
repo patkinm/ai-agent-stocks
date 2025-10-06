@@ -8,8 +8,6 @@ export async function GET(request: NextRequest) {
 
     const db = new DatabaseService();
     const scans = await db.getAllScans(limit);
-    
-    console.log('Fetched scans:', scans.length);
 
     return NextResponse.json({ success: true, scans });
   } catch (error: any) {
@@ -17,5 +15,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message || 'Failed to fetch scans' }, { status: 500 });
   }
 }
+
+
+
 
 

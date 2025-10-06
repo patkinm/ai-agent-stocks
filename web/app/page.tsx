@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import PredictionGraph from '@/components/PredictionGraph';
 import AnalysisDetailsPanel from '@/components/AnalysisDetailsPanel';
-import { StockAnalysis, PredictionComparison } from '@/lib/models/analysis';
+import { StockAnalysis } from '@/lib/models/analysis';
 import { Loader2, TrendingUp, Calendar, BarChart3, Clock } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 
@@ -45,8 +45,8 @@ function parseTimeframeToDays(timeframe: string): number {
 export default function Home() {
   const [tickers, setTickers] = useState<TickerInfo[]>([]);
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
-  const [analyses, setAnalyses] = useState<Array<StockAnalysis & { prediction?: PredictionComparison }>>([]);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<(StockAnalysis & { prediction?: PredictionComparison }) | null>(null);
+  const [analyses, setAnalyses] = useState<StockAnalysis[]>([]);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<StockAnalysis | null>(null);
   const [loadingTickers, setLoadingTickers] = useState(true);
   const [loadingAnalyses, setLoadingAnalyses] = useState(false);
   const [error, setError] = useState('');
@@ -110,7 +110,7 @@ export default function Home() {
     setSelectedAnalysis(null);
   };
 
-  const handlePointClick = (analysis: StockAnalysis & { prediction?: PredictionComparison }) => {
+  const handlePointClick = (analysis: StockAnalysis) => {
     setSelectedAnalysis(analysis);
   };
 
@@ -218,9 +218,9 @@ export default function Home() {
                   </div>
                 ) : (
                   <>
-                    {/* Graph */}
+                    {/* Unified Graph with Historical Data & Predictions */}
                     <div className="card mb-8">
-                      <h2 className="text-xl font-bold text-gray-900 mb-4">Stock Price & Predictions Over Time</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-4">Stock Price History & Predictions</h2>
                       <PredictionGraph 
                         symbol={selectedTicker}
                         analyses={analyses} 
@@ -235,17 +235,15 @@ export default function Home() {
 
                     <div className="space-y-4">
                       {analyses.map((analysis, index) => {
-                        const prediction = analysis.prediction;
-                        
                         // Calculate if timeframe has elapsed
                         const predictionDate = new Date(analysis.created_at);
                         const daysInTimeframe = parseTimeframeToDays(analysis.timeframe);
                         const targetDate = addDays(predictionDate, daysInTimeframe);
                         const hasTimeframeElapsed = new Date() > targetDate;
                         
-                        const hasActualPrice = prediction && prediction.actual_price !== null;
+                        const hasActualPrice = analysis.actual_price !== null;
                         const shouldShowOutcome = hasTimeframeElapsed && hasActualPrice;
-                        const isCorrect = prediction && prediction.prediction_accuracy && prediction.prediction_accuracy > 0;
+                        const isCorrect = analysis.prediction_accuracy !== null && analysis.prediction_accuracy > 0;
 
                         return (
                           <button
@@ -306,19 +304,19 @@ export default function Home() {
                                     <>
                                       <div>
                                         <p className="text-gray-600">Actual Price</p>
-                                        <p className="font-bold text-green-600">${prediction.actual_price?.toFixed(2)}</p>
+                                        <p className="font-bold text-green-600">${analysis.actual_price?.toFixed(2)}</p>
                                       </div>
                                       <div>
                                         <p className="text-gray-600">Change</p>
                                         <p
                                           className={`font-bold ${
-                                            (prediction.actual_change_percent || 0) >= 0
+                                            (analysis.actual_change_percent || 0) >= 0
                                               ? 'text-green-600'
                                               : 'text-red-600'
                                           }`}
                                         >
-                                          {(prediction.actual_change_percent || 0) >= 0 ? '+' : ''}
-                                          {prediction.actual_change_percent?.toFixed(2)}%
+                                          {(analysis.actual_change_percent || 0) >= 0 ? '+' : ''}
+                                          {analysis.actual_change_percent?.toFixed(2)}%
                                         </p>
                                       </div>
                                     </>

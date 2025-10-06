@@ -1,11 +1,11 @@
 'use client';
 
 import { X, TrendingUp, TrendingDown, Target, StopCircle, Calendar, Zap, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { StockAnalysis, PredictionComparison } from '@/lib/models/analysis';
+import { StockAnalysis } from '@/lib/models/analysis';
 import { format, addDays } from 'date-fns';
 
 interface AnalysisDetailsPanelProps {
-  analysis: StockAnalysis & { prediction?: PredictionComparison };
+  analysis: StockAnalysis;
   onClose: () => void;
 }
 
@@ -39,7 +39,6 @@ function parseTimeframeToDays(timeframe: string): number {
 
 export default function AnalysisDetailsPanel({ analysis, onClose }: AnalysisDetailsPanelProps) {
   const isBuy = analysis.decision === 'buy';
-  const prediction = analysis.prediction;
   
   // Calculate if timeframe has elapsed
   const predictionDate = new Date(analysis.created_at);
@@ -49,8 +48,7 @@ export default function AnalysisDetailsPanel({ analysis, onClose }: AnalysisDeta
   
   // Only show prediction outcome if timeframe has elapsed AND we have actual data
   const shouldShowOutcome = hasTimeframeElapsed && 
-                           prediction && 
-                           prediction.actual_price !== null;
+                           analysis.actual_price !== null;
   
   const targetChange = analysis.target_price
     ? ((analysis.target_price - analysis.current_price) / analysis.current_price) * 100
@@ -160,19 +158,19 @@ export default function AnalysisDetailsPanel({ analysis, onClose }: AnalysisDeta
           {/* Prediction Outcome - Only show if timeframe has elapsed */}
           {shouldShowOutcome && (
             <div className={`card mb-6 ${
-              prediction.prediction_accuracy && prediction.prediction_accuracy > 0
+              analysis.prediction_accuracy && analysis.prediction_accuracy > 0
                 ? 'bg-green-50 border-green-200'
                 : 'bg-red-50 border-red-200'
             }`}>
               <div className="flex items-start gap-4">
-                {prediction.prediction_accuracy && prediction.prediction_accuracy > 0 ? (
+                {analysis.prediction_accuracy && analysis.prediction_accuracy > 0 ? (
                   <CheckCircle className="w-8 h-8 text-green-600 flex-shrink-0" />
                 ) : (
                   <XCircle className="w-8 h-8 text-red-600 flex-shrink-0" />
                 )}
                 <div className="flex-1">
                   <h3 className={`text-lg font-bold mb-2 ${
-                    prediction.prediction_accuracy && prediction.prediction_accuracy > 0
+                    analysis.prediction_accuracy && analysis.prediction_accuracy > 0
                       ? 'text-green-900'
                       : 'text-red-900'
                   }`}>
@@ -181,26 +179,26 @@ export default function AnalysisDetailsPanel({ analysis, onClose }: AnalysisDeta
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <p className="text-gray-600">Actual Price</p>
-                      <p className="font-bold text-gray-900">${prediction.actual_price?.toFixed(2)}</p>
+                      <p className="font-bold text-gray-900">${analysis.actual_price?.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-gray-600">Price Change</p>
                       <p className={`font-bold ${
-                        (prediction.actual_change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                        (analysis.actual_change_percent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {(prediction.actual_change_percent || 0) >= 0 ? '+' : ''}
-                        {prediction.actual_change_percent?.toFixed(2)}%
+                        {(analysis.actual_change_percent || 0) >= 0 ? '+' : ''}
+                        {analysis.actual_change_percent?.toFixed(2)}%
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-600">Target Reached</p>
                       <p className="font-bold text-gray-900">
-                        {prediction.target_reached ? 'Yes ✓' : 'No ✗'}
+                        {analysis.target_reached ? 'Yes ✓' : 'No ✗'}
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-600">Days Elapsed</p>
-                      <p className="font-bold text-gray-900">{prediction.days_elapsed || 0} days</p>
+                      <p className="font-bold text-gray-900">{analysis.days_elapsed || 0} days</p>
                     </div>
                   </div>
                 </div>

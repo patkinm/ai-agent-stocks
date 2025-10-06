@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import AnalysisCard from '@/components/AnalysisCard';
 import { Search, Loader2, AlertCircle } from 'lucide-react';
@@ -13,6 +14,8 @@ export default function AnalyzePage() {
   const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [scanId, setScanId] = useState('');
+  const [detectedTickers, setDetectedTickers] = useState<string[]>([]);
+  const [failedTickers, setFailedTickers] = useState<string[]>([]);
 
   const handleAnalyze = async () => {
     if (mode === 'single' && !symbol.trim()) {
@@ -51,6 +54,8 @@ export default function AnalyzePage() {
         } else {
           setResults(data.results);
           setScanId(data.scanId);
+          setDetectedTickers(data.detectedTickers || []);
+          setFailedTickers(data.failedTickers || []);
         }
       }
     } catch (err: any) {
@@ -226,14 +231,46 @@ export default function AnalyzePage() {
               </div>
             </div>
 
-            {scanId && (
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  Scan ID: <span className="font-mono font-semibold">{scanId}</span> - View in{' '}
-                  <a href="/scans" className="underline hover:text-blue-900">
-                    Scans History
-                  </a>
-                </p>
+            {/* Scan Progress Information */}
+            {mode === 'scan' && detectedTickers.length > 0 && (
+              <div className="mb-6 space-y-4">
+                {/* Step 1: Detected Tickers */}
+                <div className="card bg-blue-50 border-blue-200">
+                  <h4 className="text-sm font-bold text-blue-900 mb-2">
+                    ✓ Step 1: Detected Tickers ({detectedTickers.length})
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {detectedTickers.map((ticker) => (
+                      <span
+                        key={ticker}
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          failedTickers.includes(ticker)
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {ticker}
+                        {failedTickers.includes(ticker) && ' ✗'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Step 2: Analysis Results */}
+                <div className="card bg-green-50 border-green-200">
+                  <h4 className="text-sm font-bold text-green-900 mb-2">
+                    ✓ Step 2: Completed Analyses ({results.length} successful
+                    {failedTickers.length > 0 && `, ${failedTickers.length} failed`})
+                  </h4>
+                  {scanId && (
+                    <p className="text-xs text-green-700">
+                      Scan ID: <span className="font-mono">{scanId}</span> -{' '}
+                      <Link href={`/scans/${scanId}`} className="underline hover:text-green-900">
+                        View Full Details
+                      </Link>
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
