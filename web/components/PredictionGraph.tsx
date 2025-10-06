@@ -528,57 +528,76 @@ export default function PredictionGraph({ symbol, analyses, onPointClick }: Pred
       isFuture: point.isFuture,
     };
     
-    // Add prediction line data
-    predictionSegments.forEach((segment, index) => {
-      const ts = point.dateMs;
-      // Only set value if this timestamp is between prediction start and end
-      if (ts >= segment.predictionDate && ts <= segment.targetDate) {
-        // Linear interpolation between prediction price and target price
-        const ratio = (ts - segment.predictionDate) / (segment.targetDate - segment.predictionDate);
-        const interpolatedPrice = segment.predictionPrice + ratio * (segment.targetPrice - segment.predictionPrice);
-        dataPoint[`prediction_${index}`] = interpolatedPrice;
-        
-        // Store analysis for the start point
-        if (ts === segment.predictionDate) {
-          dataPoint[`prediction_${index}_analysis`] = segment.analysis;
-          dataPoint[`prediction_${index}_isStart`] = true;
-        }
-        if (ts === segment.targetDate) {
-          dataPoint[`prediction_${index}_analysis`] = segment.analysis;
-          dataPoint[`prediction_${index}_isEnd`] = true;
-        }
-      }
-    });
-    
     finalData.push(dataPoint);
   });
 
-  // Ensure prediction endpoints exist in finalData
+  // Ensure prediction endpoints exist and add intermediate points for continuous lines
   predictionSegments.forEach((segment, index) => {
-    // Check if prediction start date exists
-    let hasStart = finalData.some(d => d.dateMs === segment.predictionDate);
-    if (!hasStart) {
-      const newPoint: any = {
+    // Add intermediate points for smooth prediction line
+    const dayInMs = 24 * 60 * 60 * 1000;
+    const numDays = Math.ceil((segment.targetDate - segment.predictionDate) / dayInMs);
+    
+    // Always add the exact start point
+    let startPoint = finalData.find(d => Math.abs(d.dateMs - segment.predictionDate) < dayInMs / 2);
+    if (startPoint) {
+      startPoint[`prediction_${index}`] = segment.predictionPrice;
+      startPoint[`prediction_${index}_analysis`] = segment.analysis;
+      startPoint[`prediction_${index}_isStart`] = true;
+    } else {
+      const newStartPoint: any = {
         date: format(segment.predictionDate, 'MM/dd/yy'),
         dateMs: segment.predictionDate,
         [`prediction_${index}`]: segment.predictionPrice,
         [`prediction_${index}_analysis`]: segment.analysis,
         [`prediction_${index}_isStart`]: true,
       };
-      finalData.push(newPoint);
+      finalData.push(newStartPoint);
     }
     
-    // Check if target date exists
-    let hasEnd = finalData.some(d => d.dateMs === segment.targetDate);
-    if (!hasEnd) {
-      const newPoint: any = {
+    // Always add the exact end point
+    let endPoint = finalData.find(d => Math.abs(d.dateMs - segment.targetDate) < dayInMs / 2);
+    if (endPoint) {
+      endPoint[`prediction_${index}`] = segment.targetPrice;
+      endPoint[`prediction_${index}_analysis`] = segment.analysis;
+      endPoint[`prediction_${index}_isEnd`] = true;
+    } else {
+      const newEndPoint: any = {
         date: format(segment.targetDate, 'MM/dd/yy'),
         dateMs: segment.targetDate,
         [`prediction_${index}`]: segment.targetPrice,
         [`prediction_${index}_analysis`]: segment.analysis,
         [`prediction_${index}_isEnd`]: true,
       };
-      finalData.push(newPoint);
+      finalData.push(newEndPoint);
+    }
+    
+    // Generate intermediate points at daily intervals for continuous line
+    for (let i = 1; i < numDays; i++) {
+      const timestamp = segment.predictionDate + (i * dayInMs);
+      
+      // Don't add points beyond the target date
+      if (timestamp >= segment.targetDate) continue;
+      
+      // Check if a point near this timestamp already exists (within half a day)
+      let existingPoint = finalData.find(d => Math.abs(d.dateMs - timestamp) < dayInMs / 2);
+      
+      // Calculate interpolated price
+      const ratio = (timestamp - segment.predictionDate) / (segment.targetDate - segment.predictionDate);
+      const interpolatedPrice = segment.predictionPrice + ratio * (segment.targetPrice - segment.predictionPrice);
+      
+      if (existingPoint) {
+        // Add prediction data to existing point
+        existingPoint[`prediction_${index}`] = interpolatedPrice;
+      } else {
+        // Create new point for this timestamp
+        const newPoint: any = {
+          date: format(timestamp, 'MM/dd/yy'),
+          dateMs: timestamp,
+          [`prediction_${index}`]: interpolatedPrice,
+        };
+        
+        finalData.push(newPoint);
+      }
     }
   });
   
@@ -715,6 +734,9 @@ export default function PredictionGraph({ symbol, analyses, onPointClick }: Pred
             const lineColor = isBuy ? '#10b981' : '#ef4444'; // green for buy, red for sell
             const dotColor = isBuy ? '#059669' : '#dc2626';
             
+            // Generate a unique name for each prediction in the legend
+            const predictionLabel = `${segment.analysis.decision.toUpperCase()} - ${format(new Date(segment.predictionDate), 'MMM dd')}`;
+            
             return (
               <Line
                 key={`prediction-line-${index}`}
@@ -723,7 +745,7 @@ export default function PredictionGraph({ symbol, analyses, onPointClick }: Pred
                 stroke={lineColor}
                 strokeWidth={3}
                 strokeDasharray="5 5"
-                name={index === 0 ? "Predictions" : undefined}
+                name={predictionLabel}
                 connectNulls={false}
                 dot={(props: any) => {
                   const { cx, cy, payload, value } = props;
@@ -752,6 +774,7 @@ export default function PredictionGraph({ symbol, analyses, onPointClick }: Pred
                           if (analysis) handlePointClick({ analysis });
                         }}
                       />
+                      {/* Label for start point */}
                       {isStart && (
                         <text
                           x={cx}
@@ -763,6 +786,30 @@ export default function PredictionGraph({ symbol, analyses, onPointClick }: Pred
                         >
                           {segment.analysis.decision.toUpperCase()}
                         </text>
+                      )}
+                      {/* Arrow direction indicator at end point */}
+                      {isEnd && (
+                        <>
+                          <text
+                            x={cx}
+                            y={cy - 15}
+                            textAnchor="middle"
+                            fill={dotColor}
+                            fontSize="11"
+                            fontWeight="bold"
+                          >
+                            {segment.analysis.decision.toUpperCase()}
+                          </text>
+                          {/* Arrowhead */}
+                          <path
+                            d={`M ${cx - 6} ${cy - 3} L ${cx} ${cy} L ${cx - 6} ${cy + 3}`}
+                            stroke={dotColor}
+                            strokeWidth={2}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </>
                       )}
                     </g>
                   );
